@@ -1,0 +1,19 @@
+{
+  "name": "random-ua",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seasidesun/random-ua.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seasidesun/random-ua/issues"
+  },
+  "homepage": "https://github.com/seasidesun/random-ua#readme"
+}
