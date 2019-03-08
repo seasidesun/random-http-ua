@@ -124,9 +124,13 @@ let genOneUa = (opts) => {
     let engine = `AppleWebKit/${rD.engineVer()} (KHTML\, like Gecko)`
 
     // 版本号、应用相关信息
-    let lstr = `Version/${rD.versionVer()} Chrome/${rD.chromeVer()} Safari/${rD.safariVer()}`
+    let version = `Version/${rD.versionVer()}`
+    let chrome = `Chrome/${rD.chromeVer()}`
+    let safari = `Safari/${rD.safariVer()}`
+    let prefix = rML([`50^${version}`, `${chrome}`])
+    let suffix = [`${prefix}`, `${safari}`].join(' ')
 
-    let ua = `${foundation} (${osInfo}) ${engine} ${lstr}`
+    let ua = `${foundation} (${osInfo}) ${engine} ${suffix}`
     return ua
 }
 
