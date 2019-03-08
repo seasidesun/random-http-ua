@@ -5,7 +5,7 @@
  * @param {Number} rate 概率 0-10
  */
 const rMP = (rate) => {
-    let seed = parseInt(Math.random().toString().slice(2, 3))
+    let seed = parseInt(Math.random().toString().slice(2, 4))
     return seed < rate
 }
 
@@ -49,7 +49,7 @@ const rML = (list) => {
     let seed = parseInt(Math.random().toString().slice(-3).split('').reverse().join(''))
     let index = seed % listNoRate.length
 
-    return listNoRate[index].replace(/^[0-9]{1,2}\^/, '')
+    return listNoRate[index].replace(/^[0-9]{1,3}\^/, '')
 }
 
 /**
@@ -80,10 +80,10 @@ let rD = {
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
-    'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`8^.${rMR(1, 60)}`)}`,
+    'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
-    'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`8^.${rMR(1, 20)}`)}`,
+    'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`80^.${rMR(1, 20)}`)}`,
 }
 
 let osHandler = {
