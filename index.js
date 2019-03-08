@@ -1,16 +1,55 @@
 (function(){
 
 /**
+ * 根据所给概率返回此次随机是否落在概率区间
+ * @param {Number} rate 概率 0-10
+ */
+const rMP = (rate) => {
+    let seed = parseInt(Math.random().toString().slice(2, 3))
+    return seed < rate
+}
+
+/**
+ * 根据所给概率返回此次随机是否有值
+ * @param {String} data 概率^有效值
+ */
+const rMPR = (data) => {
+    data = data.split('^')
+    return rMP(data[0]) ? data[1] : ''
+}
+
+/**
  * 随机输出数组内的元素
  * @param {Array || String} list 供随机的数据
  */
 const rML = (list) => {
-    if (!(list instanceof Array)) return list
+    if (!(list instanceof Array)) list = [list]
+
+    let listNoRate = []
+    let listWithRate = []
+    list.forEach((data) => {
+        if (data.includes('^')) listWithRate.push(data)
+        else listNoRate.push(data)
+    })
+
+    if (listWithRate.length) {
+        let rateResult = null
+        for (let n = 0; n < listWithRate.length; n++) {
+            let curRandomValue = rMPR(listWithRate[n])
+            if (curRandomValue) {
+                rateResult = curRandomValue
+                break;
+            }
+        }
+        if (rateResult) return rateResult
+    }
+
+    if (!listNoRate.length) listNoRate = listWithRate
 
     let seed = parseInt(Math.random().toString().slice(-3).split('').reverse().join(''))
-    let index = seed % list.length
+    let index = seed % listNoRate.length
 
-    return list[index]
+    return listNoRate[index].replace(/^[0-9]{1,2}\^/, '')
 }
 
 /**
@@ -34,24 +73,6 @@ const rMR = (from, to) => {
     return base + jump
 }
 
-/**
- * 根据所给概率返回此次随机是否落在概率区间
- * @param {Number} rate 概率 1-9
- */
-const rMP = (rate) => {
-    let seed = parseInt(Math.random().toString().slice(2, 3))
-    return seed < rate
-}
-
-/**
- * 根据所给概率返回此次随机是否有值
- * @param {Number} rate 概率
- * @param {String} value 有效值
- */
-const rMPR = (rate, value) => {
-    return rMP(rate) ? value : ''
-}
-
 let rD = {
     'device': () => rML(['pc']), // mobile
     'pcOs': () => rML(['windows', 'macos']),
@@ -59,10 +80,10 @@ let rD = {
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
-    'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(8, `.${rMR(1, 60)}`)}`,
+    'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`8^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
-    'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(8, `.${rMR(1, 20)}`)}`,
+    'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`8^.${rMR(1, 20)}`)}`,
 }
 
 let osHandler = {
@@ -87,7 +108,6 @@ let genOsinfo = (opts) => {
     }
     return ret
 }
-
 
 /**
  * 生成一个user-agent
