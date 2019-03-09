@@ -1,5 +1,4 @@
 (function(){
-
 /**
  * 根据所给概率返回此次随机是否落在概率区间
  * @param {Number} rate 概率 0-10
@@ -15,6 +14,7 @@ const rMP = (rate) => {
  */
 const rMPR = (data) => {
     data = data.split('^')
+    if (!data[1]) return data[0]
     return rMP(data[0]) ? data[1] : ''
 }
 
@@ -73,52 +73,71 @@ const rMR = (from, to) => {
     return base + jump
 }
 
+/**
+ * 将数组里的元素拼成一个字符串，'' | ';'过滤
+ * @param {Array || String} list
+ */
+const concatlList = (list) => {
+    if (!(list instanceof Array)) list = [list]
+    return list.filter((item) => {return !(['', ';'].includes(item))}).join(' ')
+}
+
 let rD = {
     'device': () => rML(['pc']), // mobile
+
     'pcOs': () => rML(['windows', 'macos']),
     'mobileOs': () => rML(['android', 'ios']),
+
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
+
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
+
+    'windowsApp': () => rML(['ie', 'edge', 'chrome', 'firfox', '360']),
+
+    'windowsIeVer': () => rML(['8.0', '9.0', '10.0']),
+
+    'macosApp': () => rML(['safari', 'chrome', 'chrome']),
+
+    'tridentVer': () => rML(['4.0', '5.0', '6.0']),
+
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
     'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`80^.${rMR(1, 20)}`)}`,
+    'netVer': () => `${rMR(2, 4)}.${rMR(0, 5)}${rMPR(`80^.${rMR(30729, 50727)}`)}`,
 }
 
-let osHandler = {
-    'windows': () => {
+let osHandlerOfpc = {
+    'windows': function () {
         return `Windows NT ${rD.windowsVer()}; ${rD.windowsBit()}`
     },
-    'macos': () => {
+    'windows-ie': function () {
+        return concatlList([
+            `compatible; MSIE ${rD.windowsIeVer()};`, 
+            `Windows NT ${rD.windowsVer()};`, 
+            `${rMPR(`50^${rD.windowsBit()}`)};`,
+            `Trident/${rD.tridentVer()};`,
+            `${rMPR(`50^SLCC2`)};`,
+            `${rMPR(`50^${`.NET CLR ${rD.netVer()}`}`)};`,
+            `${rMPR(`50^Tablet PC 2.0`)};`,
+        ])
+    },
+    'macos': function () {
         return `Macintosh; Intel Mac OS X ${rD.macosVer()}`
     },
 }
 
-let genOsinfo = (opts) => {
-    let ret
-    switch (opts.device) {
-        case 'pc':
-            ret = osHandler[opts.os]()
-            break;
-        case 'mobile':
-            break;
-        default:
-            break;
-    }
-    return ret
-}
-
 /**
- * 生成一个user-agent
+ * 生成一个pc user-agent
  * @param {Object} opts
  */
-let genOneUa = (opts) => {
+let genOneUaOfpc = (opts) => {
     // 基金
     let foundation = 'Mozilla/5.0'
 
     // 系统
-    let osInfo = genOsinfo(opts)
+    let osInfo = (osHandlerOfpc[`${opts.os}-${opts.app}`] || osHandlerOfpc[`${opts.os}`])()
 
     // 引擎
     let engine = `AppleWebKit/${rD.engineVer()} (KHTML\, like Gecko)`
@@ -128,10 +147,37 @@ let genOneUa = (opts) => {
     let chrome = `Chrome/${rD.chromeVer()}`
     let safari = `Safari/${rD.safariVer()}`
     let prefix = rML([`50^${version}`, `${chrome}`])
-    let suffix = [`${prefix}`, `${safari}`].join(' ')
+    let suffix = concatlList([`${prefix}`, `${safari}`])
 
-    let ua = `${foundation} (${osInfo}) ${engine} ${suffix}`
+    let ua = ''
+    switch (`${opts.os}-${opts.app}`) {
+        case 'windows-ie':
+            ua = `${foundation} (${osInfo})`
+            break;
+        default:
+            ua = `${foundation} (${osInfo}) ${engine} ${suffix}`
+            break;
+    }
     return ua
+}
+
+let genOneUaOfmobile = (opts) => {
+    return ''
+}
+
+/**
+ * 生成一个user-agent
+ * @param {Object} opts
+ */
+let genOneUa = (opts) => {
+    switch (opts.device) {
+        case 'pc':
+            return genOneUaOfpc(opts)
+        case 'mobile':
+            return genOneUaOfmobile(opts)
+        default:
+            break;
+    }
 }
 
 /**
@@ -142,10 +188,12 @@ let genOneUa = (opts) => {
 let genUaType = () => {
     const device = rD.device()
     const os = rD[`${device}Os`]()
+    const app = rD[`${os}App`]()
 
     return {
         device,
         os,
+        app,
     }
 }
 
@@ -158,7 +206,7 @@ let generateUa = (num = 1) => {
         ret.push(genOneUa(genUaType()))
     }
 
-    return ret
+    return ret[1] ? ret : ret[0]
 }
 
 const randomUa = {
