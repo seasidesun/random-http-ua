@@ -52,6 +52,10 @@ const rML = (list) => {
     return listNoRate[index].replace(/^[0-9]{1,3}\^/, '')
 }
 
+const rMW = () => {
+    return rML(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'])
+}
+
 /**
  * 随机输出区间内的一个数字
  * @param {Number || String} from 最小值
@@ -87,10 +91,10 @@ const concatlList = (list) => {
  * 供随机的数据
  */
 const rD = {
-    'device': () => rML(['pc']), // mobile
+    'device': () => rML(['mobile']), // pc
 
     'pcOs': () => rML(['windows', 'macos']),
-    'mobileOs': () => rML(['android', 'ios']),
+    'mobileOs': () => rML(['ios']), // android
 
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
@@ -99,10 +103,15 @@ const rD = {
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
     'macosApp': () => rML(['safari', 'chrome', 'firfox']),
 
+    'iosVer': () => rML([`10_${rMR(1, 2)}`, `11_${rMR(1, 4)}_${rMR(1, 4)}`, `12_${rMR(1, 2)}_${rMR(1, 4)}`]),
+    'iosApp': () => rML(['safari', 'qb', 'wechat']),
+
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
     'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`80^.${rMR(1, 20)}`)}`,
+    'mobileVer': () => `${rMR(11, 14)}${rMW()}${rMR(1, 60)}${rMR(1, 60)}${rMPR(`80^${rMW()}`)}`,
+    'networwVer': () => rML(['5^3G', '4G', 'WIFI']),
 
     'netVer': () => `${rMR(2, 4)}.${rMR(0, 5)}${rMPR(`80^.${rMR(30729, 50727)}`)}`,
     'ieVer': () => rML(['8.0', '9.0', '10.0']),
@@ -114,7 +123,7 @@ const rD = {
 }
 
 /**
- * ua系统信息
+ * pc ua系统信息
  */
 const osHandlerOfpc = {
     'windows': () => {
@@ -136,6 +145,9 @@ const osHandlerOfpc = {
     },
     'macos-firefox': () => {
         return `Macintosh; Intel Mac OS X ${rD.macosVer()} rv:${rMR(60, 65)}.0`
+    },
+    'ios': () => {
+        return `iPhone; CPU iPhone OS ${rD.iosVer()} like Mac OS X`
     },
 }
 
@@ -163,6 +175,15 @@ const appSufHandlerOfpc = {
     },
     'macos-firefox': () => {
         return `Gecko/20${rMR(13, 17)}${rMR(1, 12)}${rMR(1, 30)} Firefox/${rD.firefoxVer()}`
+    },
+    'ios': () => {
+        return `Safari/${rD.safariVer()}`
+    },
+    'ios-qb': () => {
+        return `MQQBrowser/${rMR(8, 10)}.${rMR(0, 5)}.${rMR(1, 5)} Safari/${rD.safariVer()} MttCustomUA/${rMR(1, 3)} QBWebViewType/${rMR(2, 5)} WKType/`
+    },
+    'ios-wechat': () => {
+        return `MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`
     },
 }
 
@@ -208,8 +229,38 @@ const genOneUaOfpc = (opts) => {
     return ua
 }
 
+/**
+ * 生成一个mobile user-agent
+ * @param {Object} opts
+ */
 let genOneUaOfmobile = (opts) => {
-    return ''
+    // 基金
+    let foundation = 'Mozilla/5.0'
+
+    // 系统
+    let tag = `${opts.os}-${opts.app}`
+    let osHandler = osHandlerOfpc[`${tag}`] || osHandlerOfpc[`${opts.os}`]
+    let osInfo = osHandler()
+
+    // 引擎
+    let engine = `AppleWebKit/${rD.engineVer()} (KHTML\, like Gecko)`
+
+    // 版本号、应用相关信息
+    let version = `Version/${rD.versionVer()}`
+    let mobile = `Mobile/${rD.mobileVer()}`
+    let prefix = rML([`50^${version}`, `${mobile}`])
+
+    let ua = ''
+    let appSuf = appSufHandlerOfpc[`${tag}`] || appSufHandlerOfpc[`${opts.os}`]
+    switch (tag) {
+        case 'ios-':
+            ua = `${foundation} (${osInfo}) ${engine} ${prefix} ${appSuf()}`
+            break;
+        default:
+            ua = `${foundation} (${osInfo}) ${engine} ${prefix} ${appSuf()}`
+            break;
+    }
+    return ua
 }
 
 /**
