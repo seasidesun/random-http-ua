@@ -82,7 +82,11 @@ const concatlList = (list) => {
     return list.filter((item) => {return !(['', ';'].includes(item))}).join(' ')
 }
 
-let rD = {
+
+/**
+ * 供随机的数据
+ */
+const rD = {
     'device': () => rML(['pc']), // mobile
 
     'pcOs': () => rML(['windows', 'macos']),
@@ -90,19 +94,17 @@ let rD = {
 
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
-
-    'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
-
     'windowsApp': () => rML(['ie', 'edge', 'qb', 'chrome', 'firfox', '360']),
 
+    'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
     'macosApp': () => rML(['safari', 'chrome', 'firfox']),
 
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
     'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`80^.${rMR(1, 20)}`)}`,
-    'netVer': () => `${rMR(2, 4)}.${rMR(0, 5)}${rMPR(`80^.${rMR(30729, 50727)}`)}`,
 
+    'netVer': () => `${rMR(2, 4)}.${rMR(0, 5)}${rMPR(`80^.${rMR(30729, 50727)}`)}`,
     'ieVer': () => rML(['8.0', '9.0', '10.0']),
     'tridentVer': () => rML(['4.0', '5.0', '6.0']),
     'qbVer': () => `${rMR(8, 10)}.${rMR(0, 5)}.${rMR(2500, 3200)}.${rML(['100', '200', '300', '400'])}`,
@@ -111,7 +113,10 @@ let rD = {
     'firefoxVer': () => `${rMR(55, 65)}.${rMR(0, 10)}`,
 }
 
-let osHandlerOfpc = {
+/**
+ * ua系统信息
+ */
+const osHandlerOfpc = {
     'windows': () => {
         return `Windows NT ${rD.windowsVer()}; ${rD.windowsBit()}`
     },
@@ -129,9 +134,15 @@ let osHandlerOfpc = {
     'macos': () => {
         return `Macintosh; Intel Mac OS X ${rD.macosVer()}`
     },
+    'macos-firefox': () => {
+        return `Macintosh; Intel Mac OS X ${rD.macosVer()} rv:${rMR(60, 65)}.0`
+    },
 }
 
-let appSufHandlerOfpc = {
+/**
+ * ua应用信息 eg. ie safari 360 chrome
+ */
+const appSufHandlerOfpc = {
     'windows': () => {
         return ``
     },
@@ -150,19 +161,21 @@ let appSufHandlerOfpc = {
     'macos': () => {
         return ``
     },
+    'macos-firefox': () => {
+        return `Gecko/20${rMR(13, 17)}${rMR(1, 12)}${rMR(1, 30)} Firefox/${rD.firefoxVer()}`
+    },
 }
 
 /**
  * 生成一个pc user-agent
  * @param {Object} opts
  */
-let genOneUaOfpc = (opts) => {
+const genOneUaOfpc = (opts) => {
     // 基金
     let foundation = 'Mozilla/5.0'
 
-    let tag = `${opts.os}-${opts.app}`
-
     // 系统
+    let tag = `${opts.os}-${opts.app}`
     let osHandler = osHandlerOfpc[`${tag}`] || osHandlerOfpc[`${opts.os}`]
     let osInfo = osHandler()
 
