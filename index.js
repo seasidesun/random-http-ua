@@ -93,28 +93,31 @@ let rD = {
 
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
 
-    'windowsApp': () => rML(['ie', 'edge', 'chrome', 'firfox', '360']),
+    'windowsApp': () => rML(['ie', 'edge', 'qb', 'chrome', 'firfox', '360']),
 
-    'windowsIeVer': () => rML(['8.0', '9.0', '10.0']),
-
-    'macosApp': () => rML(['safari', 'chrome', 'chrome']),
-
-    'tridentVer': () => rML(['4.0', '5.0', '6.0']),
+    'macosApp': () => rML(['safari', 'chrome', 'firfox']),
 
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
     'chromeVer': () => `${rMR(50, 73)}.0.${rMR(2500, 3500)}.${rMR(1, 100)}`,
     'safariVer': () => `${rMR(537, 605)}.${rMR(1, 36)}${rMPR(`80^.${rMR(1, 20)}`)}`,
     'netVer': () => `${rMR(2, 4)}.${rMR(0, 5)}${rMPR(`80^.${rMR(30729, 50727)}`)}`,
+
+    'ieVer': () => rML(['8.0', '9.0', '10.0']),
+    'tridentVer': () => rML(['4.0', '5.0', '6.0']),
+    'qbVer': () => `${rMR(8, 10)}.${rMR(0, 5)}.${rMR(2500, 3200)}.${rML(['100', '200', '300', '400'])}`,
+    'qbcoreVer': () => `${rMR(1, 3)}.${rMR(50, 75)}.${rMR(500, 3500)}.${rML(['100', '200', '300', '400'])}`,
+    'edgeVer': () => `${rMR(11, 17)}.${rMR(11000, 17000)}`,
+    'firefoxVer': () => `${rMR(55, 65)}.${rMR(0, 10)}`,
 }
 
 let osHandlerOfpc = {
-    'windows': function () {
+    'windows': () => {
         return `Windows NT ${rD.windowsVer()}; ${rD.windowsBit()}`
     },
-    'windows-ie': function () {
+    'windows-ie': () => {
         return concatlList([
-            `compatible; MSIE ${rD.windowsIeVer()};`, 
+            `compatible; MSIE ${rD.ieVer()};`,
             `Windows NT ${rD.windowsVer()};`, 
             `${rMPR(`50^${rD.windowsBit()}`)};`,
             `Trident/${rD.tridentVer()};`,
@@ -123,8 +126,29 @@ let osHandlerOfpc = {
             `${rMPR(`50^Tablet PC 2.0`)};`,
         ])
     },
-    'macos': function () {
+    'macos': () => {
         return `Macintosh; Intel Mac OS X ${rD.macosVer()}`
+    },
+}
+
+let appSufHandlerOfpc = {
+    'windows': () => {
+        return ``
+    },
+    'windows-qb': () => {
+        return `QBCore/${rD.qbVer()} QQBrowser/${rD.qbcoreVer()}`
+    },
+    'windows-edge': () => {
+        return `edge/${rD.edgeVer()}`
+    },
+    'windows-360': () => {
+        return `QIHU 360SE`
+    },
+    'windows-firefox': () => {
+        return `Gecko/20${rMR(13, 17)}${rMR(1, 12)}${rMR(1, 30)} Firefox/${rD.firefoxVer()}`
+    },
+    'macos': () => {
+        return ``
     },
 }
 
@@ -136,8 +160,11 @@ let genOneUaOfpc = (opts) => {
     // 基金
     let foundation = 'Mozilla/5.0'
 
+    let tag = `${opts.os}-${opts.app}`
+
     // 系统
-    let osInfo = (osHandlerOfpc[`${opts.os}-${opts.app}`] || osHandlerOfpc[`${opts.os}`])()
+    let osHandler = osHandlerOfpc[`${tag}`] || osHandlerOfpc[`${opts.os}`]
+    let osInfo = osHandler()
 
     // 引擎
     let engine = `AppleWebKit/${rD.engineVer()} (KHTML\, like Gecko)`
@@ -150,12 +177,19 @@ let genOneUaOfpc = (opts) => {
     let suffix = concatlList([`${prefix}`, `${safari}`])
 
     let ua = ''
-    switch (`${opts.os}-${opts.app}`) {
+    switch (tag) {
         case 'windows-ie':
             ua = `${foundation} (${osInfo})`
             break;
-        default:
+        case 'windows-':
             ua = `${foundation} (${osInfo}) ${engine} ${suffix}`
+            break;
+        case 'macos-':
+            ua = `${foundation} (${osInfo}) ${engine} ${suffix}`
+            break;
+        default:
+            let appSuf = appSufHandlerOfpc[`${tag}`] || appSufHandlerOfpc[`${opts.os}`]
+            ua = `${foundation} (${osInfo}) ${engine} ${suffix} ${appSuf()}`
             break;
     }
     return ua
