@@ -52,8 +52,16 @@ const rML = (list) => {
     return listNoRate[index].replace(/^[0-9]{1,3}\^/, '')
 }
 
-const rMW = () => {
-    return rML(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'])
+/**
+ * 随机26字母
+ * @param {Number} num 字母的长度
+ */
+const rMW = (num = 1) => {
+    let ret = ''
+    for (let n = 0; n < num; n++) {
+        ret += rML(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'])
+    }
+    return ret
 }
 
 /**
@@ -86,7 +94,6 @@ const concatlList = (list) => {
     return list.filter((item) => {return !(['', ';'].includes(item))}).join(' ')
 }
 
-
 /**
  * 供随机的数据
  */
@@ -94,7 +101,7 @@ const rD = {
     'device': () => rML(['mobile']), // pc
 
     'pcOs': () => rML(['windows', 'macos']),
-    'mobileOs': () => rML(['ios']), // android
+    'mobileOs': () => rML(['android']), // ios
 
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
@@ -105,6 +112,11 @@ const rD = {
 
     'iosVer': () => rML([`10_${rMR(1, 2)}`, `11_${rMR(1, 4)}_${rMR(1, 4)}`, `12_${rMR(1, 2)}_${rMR(1, 4)}`]),
     'iosApp': () => rML(['safari', 'qb', 'wechat']),
+
+    'androidVer': () => `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`,
+    'androidDevice': () => rML(['huawei']),
+    // 'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
+    'androidApp': () => rML(['wechat']),
 
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
@@ -123,7 +135,7 @@ const rD = {
 }
 
 /**
- * pc ua系统信息
+ * ua系统信息
  */
 const osHandlerOfpc = {
     'windows': () => {
@@ -148,6 +160,13 @@ const osHandlerOfpc = {
     },
     'ios': () => {
         return `iPhone; CPU iPhone OS ${rD.iosVer()} like Mac OS X`
+    },
+    'android': () => {
+        return `Linux; Android ${rD.androidVer()}; wv`
+    },
+    'android-huawei': () => {
+        let tag = `${rML([`95^${rMW(3)}`, 'EDISON'])}-${rML(['AL', 'UL'])}${rMR(0, 2)}${rMR(0, 2)}`
+        return `Linux; Android ${rD.androidVer()}; ${tag} Build/HUAWEI${tag}; wv`
     },
 }
 
@@ -184,6 +203,12 @@ const appSufHandlerOfpc = {
     },
     'ios-wechat': () => {
         return `MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`
+    },
+    'android': () => {
+        return `Mobile Safari/${rD.safariVer()}`
+    },
+    'android-wechat': () => {
+        return `Mobile Safari/${rD.safariVer()} MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`
     },
 }
 
@@ -238,19 +263,33 @@ let genOneUaOfmobile = (opts) => {
     let foundation = 'Mozilla/5.0'
 
     // 系统
-    let tag = `${opts.os}-${opts.app}`
-    let osHandler = osHandlerOfpc[`${tag}`] || osHandlerOfpc[`${opts.os}`]
-    let osInfo = osHandler()
+    let osInfo = ''
+    if (opts.os === 'ios') {
+        let tag = `${opts.os}-${opts.app}`
+        let osHandler = osHandlerOfpc[`${tag}`] || osHandlerOfpc[`${opts.os}`]
+        osInfo = osHandler()
+    } else {
+        let deviceTag = `${opts.os}-${opts.brand}`
+        let osHandler = osHandlerOfpc[`${deviceTag}`] || osHandlerOfpc[`${opts.os}`]
+        osInfo = osHandler()
+    }
 
     // 引擎
     let engine = `AppleWebKit/${rD.engineVer()} (KHTML\, like Gecko)`
 
     // 版本号、应用相关信息
+    let prefix = ''
     let version = `Version/${rD.versionVer()}`
-    let mobile = `Mobile/${rD.mobileVer()}`
-    let prefix = rML([`50^${version}`, `${mobile}`])
+    if (opts.os === 'ios') {
+        let mobile = `Mobile/${rD.mobileVer()}`
+        prefix = rML([`50^${version}`, `${mobile}`])
+    } else {
+        let chrome = `Chrome/${rD.chromeVer()}`
+        prefix = rML([`50^${version}`, `${chrome}`])
+    }
 
     let ua = ''
+    let tag = `${opts.os}-${opts.app}`
     let appSuf = appSufHandlerOfpc[`${tag}`] || appSufHandlerOfpc[`${opts.os}`]
     switch (tag) {
         case 'ios-':
@@ -282,16 +321,20 @@ let genOneUa = (opts) => {
  * 随机生成一个浏览器的系统环境
  * device: pc | mobile
  * os: windows | macos | andriod | ios
+ * app: safari | wechat | chrome | qb
+ * brand: huawei | mi | oppo | vivo | samsung
  */
 let genUaType = () => {
     const device = rD.device()
     const os = rD[`${device}Os`]()
     const app = rD[`${os}App`]()
+    const brand = `${device}${os}` === 'mobileandriod' ? rD.androidDevice() : ''
 
     return {
         device,
         os,
         app,
+        brand,
     }
 }
 
