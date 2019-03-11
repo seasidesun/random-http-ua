@@ -114,7 +114,7 @@ const rD = {
     'iosApp': () => rML(['safari', 'qb', 'wechat']),
 
     'androidVer': () => `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`,
-    'androidDevice': () => rML(['huawei']),
+    'androidDevice': () => rML(['mi']),
     // 'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
     'androidApp': () => rML(['wechat']),
 
@@ -167,6 +167,14 @@ const osHandlerOfpc = {
     'android-huawei': () => {
         let tag = `${rML([`95^${rMW(3)}`, 'EDISON'])}-${rML(['AL', 'UL'])}${rMR(0, 2)}${rMR(0, 2)}`
         return `Linux; Android ${rD.androidVer()}; ${tag} Build/HUAWEI${tag}; wv`
+    },
+    'android-mi': () => {
+        let miVerList = ['4LTE', '5', '5X', '5C', '5s', '5s Plus', '6', '6X', '8', '8 UD', '8 SE', '8 Lite', '9', 'MAX', 'MAX 2', 'MAX 3', 'PAD', 'PAD 4', 'NOTE', 'NOTE LTE']
+        let miVer = rML([`MI ${rML(miVerList)}`, `MIX ${rML(['2', '2s', '3'])}`])
+        let suf1 = `Build/${rML(['OPM1', 'PKQ1', 'OPR1'])}.${rMR(170000, 180729)}.${rMR(170000, 180729)}`
+        let suf2 = `Build/${rMW(3)}${rMR(10, 30)}${rMW(1)}`
+        let suf = rML([`${suf1}`, `${suf2}`])
+        return `Linux; Android ${rD.androidVer()}; ${miVer} ${suf}; wv`
     },
 }
 
@@ -328,7 +336,7 @@ let genUaType = () => {
     const device = rD.device()
     const os = rD[`${device}Os`]()
     const app = rD[`${os}App`]()
-    const brand = `${device}${os}` === 'mobileandriod' ? rD.androidDevice() : ''
+    const brand = `${device}${os}` === 'mobileandroid' ? rD.androidDevice() : ''
 
     return {
         device,
