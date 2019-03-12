@@ -114,7 +114,7 @@ const rD = {
     'iosApp': () => rML(['safari', 'qb', 'wechat']),
 
     'androidVer': () => `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`,
-    'androidDevice': () => rML(['mi']),
+    'androidDevice': () => rML(['samsung']),
     // 'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
     'androidApp': () => rML(['wechat']),
 
@@ -175,6 +175,21 @@ const osHandlerOfpc = {
         let suf2 = `Build/${rMW(3)}${rMR(10, 30)}${rMW(1)}`
         let suf = rML([`${suf1}`, `${suf2}`])
         return `Linux; Android ${rD.androidVer()}; ${miVer} ${suf}; wv`
+    },
+    'android-oppo': () => {
+        let oppoVerList = ['r9 plustm a', 'A57t', 'R9m', 'R9t', 'A79t', 'R11t', 'A57', 'A37m', 'R11', 'A59s', 'R9sk', 'A73t', 'A83', 'R9 Plustm A', 'R9s', 'R9tm', 'R11s', 'A77', 'A79k', 'R11st', 'A77t', 'A33', 'A53', 'A59m', 'R11 Plus', 'R9s Plus', 'A83t', 'R9', 'A59t', 'R9skt', 'A37t', 'A53m', 'A73', 'R7sm', 'R7s', 'R9st', 'r7s', 'r9', 'a37m', 'r9m', 'R11 Plusk', 'r9 plusm a']
+        let tag = `OPPO ${rML(oppoVerList)} Build/${rMW(3)}${rMR(10, 30)}${rMW(1)}`
+        return `Linux; Android ${rD.androidVer()}; ${tag}; wv`
+    },
+    'android-vivo': () => {
+        let vivoVerList = ['X21i A', 'X9Plus', 'Y66L', 'Y66', 'X20', 'V3Max A', 'X7', 'NEX A', 'Y31', 'X9i', 'Y85A', 'Y75A', 'X9s', 'Xplay6', 'Y83A', 'X7Plus', 'X9s Plus', 'X9s L', 'X9', 'X9L', 'X6Plus D', 'Y71', 'X21UD A', 'Y51A', 'X6Plus L', 'Y71A', 'X20A', 'Y66i A', 'X6A', 'X21', 'X9Plus L', 'Y53L', 'V3M A', 'X6D', 'X21A', 'V3', 'Y66i', 'X6S A', 'Z1', 'X3V', 'Y67L', 'X20Plus A', 'Xplay5A', 'Z1i', 'NEX S']
+        let tag = `vivo ${rML(vivoVerList)} Build/${rML(['OPM1', 'PKQ1', 'OPR1'])}.${rMR(17000, 180128)}.0${rMR(1, 99)}`
+        return `Linux; Android ${rD.androidVer()}; ${tag}; wv`
+    },
+    'android-samsung': () => {
+        let samsungVerList = ['G9550', 'C7000', 'G9500', 'C5000', 'G9600', 'N9500', 'G9200', 'G9508', 'G6100', 'G9287', 'N9600', 'C7010', 'G9350', 'G9280', 'N9006', 'G9300', 'J3109', 'C9000', 'G935F', 'N950N', 'G9650', 'A500FU', 'C5010', 'J5008', 'A5000', 'G955F', 'A9100', 'E7009', 'G8508S', 'W2018', 'J3110', 'G955U', 'G5700', 'A7100', 'A7000', 'G9608', 'G8850', 'G8750', 'A600N', 'A8000', 'J7008', 'G950U', 'N9508', 'G5108Q', 'N9108V', 'G9008V', 'N920I', 'G610F', 'A6050', 'W2016', 'C9008', 'G9750', 'G3606', 'A5108', 'J5108', 'P585Y', 'G928V', 'T331C', 'N9005', 'N960F', 'G7105', 'N9200', 'G1600', 'J250F', 'N9008V', 'G8870']
+        let tag = `SM-${rML(samsungVerList)} Build/${rMW(`${rMR(1, 3)}`)}${rMR(0, 99)}${rMW(1)}`
+        return `Linux; Android ${rD.androidVer()}; ${tag}; wv`
     },
 }
 
