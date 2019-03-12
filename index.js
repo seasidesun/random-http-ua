@@ -114,9 +114,8 @@ const rD = {
     'iosApp': () => rML(['safari', 'qb', 'wechat']),
 
     'androidVer': () => `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`,
-    'androidDevice': () => rML(['samsung']),
-    // 'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
-    'androidApp': () => rML(['wechat']),
+    'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
+    'androidApp': () => rML(['wechat', 'uc', 'baidu', 'qb', '']),
 
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
@@ -232,6 +231,15 @@ const appSufHandlerOfpc = {
     },
     'android-wechat': () => {
         return `Mobile Safari/${rD.safariVer()} MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`
+    },
+    'android-baidu': () => {
+        return `Mobile Safari/${rD.safariVer()}${rML(['2^ ', ` T7/${rMR(6, 9)}.${rMR(1, 9)} `])}baidubrowser/${rMR(1, 9)}.${rMR(10, 19)}.${rMR(10, 19)}.0 (Baidu; P1 ${rMR(1, 9)}.${rMR(0, 9)}.${rMR(0, 9)})`
+    },
+    'android-uc': () => {
+        return `UCBrowser/${rMR(10, 12)}.${rMR(0, 5)}.${rMR(0, 9)}.${rMR(100, 983)} Mobile Safari/${rD.safariVer()}`
+    },
+    'android-qb': () => {
+        return `MQQBrowser/${rMR(6, 8)}.${rMR(1, 9)} Mobile Safari/${rD.safariVer()}`
     },
 }
 
