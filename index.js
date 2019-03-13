@@ -239,7 +239,7 @@ const appSufHandlerOfpc = {
         return `UCBrowser/${rMR(10, 12)}.${rMR(0, 5)}.${rMR(0, 9)}.${rMR(100, 983)} Mobile Safari/${rD.safariVer()}`
     },
     'android-qb': () => {
-        return `MQQBrowser/${rMR(6, 8)}.${rMR(1, 9)} Mobile Safari/${rD.safariVer()}`
+        return `MQQBrowser/${rMR(6, 8)}.${rMR(1, 9)} TBS/0${rMR(41000, 45000)} Mobile Safari/${rD.safariVer()}`
     },
 }
 
