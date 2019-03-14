@@ -335,7 +335,7 @@ const genOneUaOfpc = (opts) => {
             break;
         default:
             let appSuf = appSufHandlerOfpc[`${tag}`] || appSufHandlerOfpc[`${opts.os}`]
-            ua = `${foundation} (${osInfo}) ${engine} ${suffix} ${appSuf()}`
+            ua = cL([`${foundation}`, `(${osInfo})`, `${engine}`, `${suffix}`, `${appSuf()}`])
             break;
     }
     return ua
