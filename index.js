@@ -136,11 +136,16 @@ const cL = (list) => {
  * edgeVer: egde浏览器版本
  * firefoxVer: firefox浏览器版本
  */
-const rD = {
-    'device': () => rML(['mobile', 'pc']),
 
-    'pcOs': () => rML(['windows', 'macos']),
-    'mobileOs': () => rML(['android', 'ios']),
+const customDefault = {
+    'device': ['mobile', 'pc'],
+    'pcOs': ['windows', 'macos'],
+    'mobileOs': ['android', 'ios'],
+}
+const rD = {
+    'device': () => rML(customDefault['device']),
+    'pcOs': () => rML(customDefault['pcOs']),
+    'mobileOs': () => rML(customDefault['mobileOs']),
 
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
@@ -431,11 +436,16 @@ const genUaType = () => {
 /**
  * 随机生成浏览器的ua
  * @param {String | Number} ua的数量
+ * @param {Object} ua的类型
  * @return {String | Array} 浏览器ua
  */
-const generateUa = (num = 1) => {
+const generateUa = (num = 1, opt = {}) => {
     num = parseInt(num)
     if (isNaN(num) || num < 1) num = 1
+
+    Object.keys(customDefault).forEach((key) => {
+        rD[key] = () => rML(opt[key] || customDefault[key])
+    })
 
     let ret = []
     for (let n = 0; n < num; n++) {
