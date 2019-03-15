@@ -84,7 +84,8 @@ const rMR = (from, to) => {
 
     const base = Math.min(from, to)
     const range = Math.abs(from - to) + 1
-    let seed = parseInt(Math.random().toString().slice(`-${++range.toString().length}`).split('').reverse().join(''))
+    const randomRange = range.toString().length + 1 // 随机时要比实际大一位，因为最后要取余数
+    let seed = parseInt(Math.random().toString().slice(-randomRange).split('').reverse().join(''))
     let jump = seed % range
 
     return base + jump
