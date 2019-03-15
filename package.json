@@ -1,19 +1,25 @@
 {
-  "name": "random-ua",
-  "version": "1.0.0",
+  "name": "random-http-ua",
+  "version": "1.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "random-http-ua.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel index.js --out-file random-http-ua.js",
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seasidesun/random-ua.git"
+    "url": "git+https://github.com/seasidesun/random-http-ua.git"
   },
-  "author": "",
+  "author": "seasidesun",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/seasidesun/random-ua/issues"
+    "url": "https://github.com/seasidesun/random-http-ua/issues"
   },
-  "homepage": "https://github.com/seasidesun/random-ua#readme"
+  "homepage": "https://github.com/seasidesun/random-http-ua#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4"
+  }
 }

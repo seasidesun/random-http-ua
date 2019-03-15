@@ -1,3 +1,11 @@
+/**
+ * 随机生成http的user-agent
+ * NPM NAME : random-http-ua
+ * vervison : v1.0.1
+ * Github : https://github.com/seasidesun/random-http-ua
+ * Author : seasidesun
+ * Email : seasidetank@gmail.com
+ */
 (function(){
 /**
  * 根据所给概率返回此次随机是否落在概率区间
