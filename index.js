@@ -31,7 +31,7 @@ const rML = (list) => {
     let listNoRate = []
     let listWithRate = []
     list.forEach((data) => {
-        if (data.includes('^')) listWithRate.push(data)
+        if (data.indexOf('^') !== -1) listWithRate.push(data)
         else listNoRate.push(data)
     })
 
@@ -97,7 +97,7 @@ const rMR = (from, to) => {
  */
 const cL = (list) => {
     if (!(list instanceof Array)) list = [list]
-    return list.filter((item) => {return !(['', ';'].includes(item))}).join(' ')
+    return list.filter((item) => {return ['', ';'].indexOf(item) === -1}).join(' ')
 }
 
 /**
