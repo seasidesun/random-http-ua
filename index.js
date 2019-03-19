@@ -127,7 +127,7 @@ const cL = (list) => {
  * iosApp: ios浏览器应用
  * 
  * androidVer: 安卓版本
- * androidDevice: 安卓机型 eg.samsung、huawei、mi
+ * androidBrand: 安卓机型 eg.samsung、huawei、mi
  * androidApp: 安卓浏览器应用 eg.uc、wechat
  * 
  * UA中的部分字符串随机：
@@ -144,12 +144,18 @@ const cL = (list) => {
  * qbcoreVer: qq浏览器core版本
  * edgeVer: egde浏览器版本
  * firefoxVer: firefox浏览器版本
+ * 
+ * 只有customMap中的字段支持自定义
  */
-
 const customDefault = {
     'device': ['mobile', 'pc'],
     'pcOs': ['windows', 'macos'],
     'mobileOs': ['android', 'ios'],
+    'windowsApp': ['ie', 'edge', 'qb', 'chrome', 'firfox', '360'],
+    'macosApp': ['safari', 'chrome', 'firfox'],
+    'iosApp': ['safari', 'qb', 'wechat'],
+    'androidBrand': ['huawei', 'mi', 'vivo', 'oppo', 'samsung'],
+    'androidApp': ['wechat', 'uc', 'baidu', 'qb', 'native'],
 }
 const rD = {
     'device': () => rML(customDefault['device']),
@@ -158,17 +164,17 @@ const rD = {
 
     'windowsVer': () => rML(['5.1', '6.1', '10.0']),
     'windowsBit': () => rML(['WOW64', 'Win64; x64']),
-    'windowsApp': () => rML(['ie', 'edge', 'qb', 'chrome', 'firfox', '360']),
+    'windowsApp': () => rML(customDefault['windowsApp']),
 
     'macosVer': () => rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']),
-    'macosApp': () => rML(['safari', 'chrome', 'firfox']),
+    'macosApp': () => rML(customDefault['macosApp']),
 
     'iosVer': () => rML([`10_${rMR(1, 2)}`, `11_${rMR(1, 4)}_${rMR(1, 4)}`, `12_${rMR(1, 2)}_${rMR(1, 4)}`]),
-    'iosApp': () => rML(['safari', 'qb', 'wechat']),
+    'iosApp': () => rML(customDefault['iosApp']),
 
     'androidVer': () => `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`,
-    'androidDevice': () => rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']),
-    'androidApp': () => rML(['wechat', 'uc', 'baidu', 'qb', '']),
+    'androidBrand': () => rML(customDefault['androidBrand']),
+    'androidApp': () => rML(customDefault['androidApp']),
 
     'engineVer': () => `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`,
     'versionVer': () => `${rMR(4, 12)}.${rMR(0, 5)}`,
@@ -295,7 +301,7 @@ const appSufHandlerOfpc = {
     'ios-wechat': () => {
         return `MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`
     },
-    'android': () => {
+    'android-native': () => {
         return `Mobile Safari/${rD.safariVer()}`
     },
     'android-wechat': () => {
@@ -432,7 +438,7 @@ const genUaType = () => {
     const device = rD.device()
     const os = rD[`${device}Os`]()
     const app = rD[`${os}App`]()
-    const brand = `${device}${os}` === 'mobileandroid' ? rD.androidDevice() : '' // 只有安卓机器分机型
+    const brand = `${device}${os}` === 'mobileandroid' ? rD.androidBrand() : '' // 只有安卓机器分机型
 
     return {
         device,
@@ -447,13 +453,20 @@ const genUaType = () => {
  * @param {String | Number} ua的数量
  * @param {Object} ua的类型
  * @return {String | Array} 浏览器ua
+ * customMap 为可自定义的ua参数
  */
+const customMap = ['device', 'pcOs', 'mobileOs', 'windowsApp', 'macosApp', 'iosApp', 'androidBrand', 'androidApp']
 const generateUa = (num = 1, opt = {}) => {
     num = parseInt(num)
     if (isNaN(num) || num < 1) num = 1
 
-    Object.keys(customDefault).forEach((key) => {
-        rD[key] = () => rML(opt[key] || customDefault[key])
+    const config = {
+        ...customDefault,
+        ...opt,
+    }
+
+    customMap.forEach((key) => {
+        rD[key] = () => rML(config[key])
     })
 
     let ret = []
