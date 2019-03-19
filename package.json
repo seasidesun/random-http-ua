@@ -1,7 +1,7 @@
 {
   "name": "random-http-ua",
-  "version": "1.0.1",
-  "description": "",
+  "version": "1.0.2",
+  "description": "批量生成http请求头的user-agent",
   "main": "random-http-ua.js",
   "scripts": {
     "build": "babel index.js --out-file random-http-ua.js",

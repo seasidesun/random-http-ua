@@ -1,5 +1,9 @@
 "use strict";
 
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * 随机生成http的user-agent
  * NPM NAME : random-http-ua
@@ -135,7 +139,7 @@
    * iosApp: ios浏览器应用
    * 
    * androidVer: 安卓版本
-   * androidDevice: 安卓机型 eg.samsung、huawei、mi
+   * androidBrand: 安卓机型 eg.samsung、huawei、mi
    * androidApp: 安卓浏览器应用 eg.uc、wechat
    * 
    * UA中的部分字符串随机：
@@ -152,13 +156,20 @@
    * qbcoreVer: qq浏览器core版本
    * edgeVer: egde浏览器版本
    * firefoxVer: firefox浏览器版本
+   * 
+   * 只有customMap中的字段支持自定义
    */
 
 
   var customDefault = {
     'device': ['mobile', 'pc'],
     'pcOs': ['windows', 'macos'],
-    'mobileOs': ['android', 'ios']
+    'mobileOs': ['android', 'ios'],
+    'windowsApp': ['ie', 'edge', 'qb', 'chrome', 'firfox', '360'],
+    'macosApp': ['safari', 'chrome', 'firfox'],
+    'iosApp': ['safari', 'qb', 'wechat'],
+    'androidBrand': ['huawei', 'mi', 'vivo', 'oppo', 'samsung'],
+    'androidApp': ['wechat', 'uc', 'baidu', 'qb', 'native']
   };
   var rD = {
     'device': function device() {
@@ -177,28 +188,28 @@
       return rML(['WOW64', 'Win64; x64']);
     },
     'windowsApp': function windowsApp() {
-      return rML(['ie', 'edge', 'qb', 'chrome', 'firfox', '360']);
+      return rML(customDefault['windowsApp']);
     },
     'macosVer': function macosVer() {
       return rML(['10_13_1', '10_13_2', '10_13_3', '10_13_4', '10_13_5', '10_13_6', '10_14_1', '10_14_2', '10_14_3']);
     },
     'macosApp': function macosApp() {
-      return rML(['safari', 'chrome', 'firfox']);
+      return rML(customDefault['macosApp']);
     },
     'iosVer': function iosVer() {
       return rML([`10_${rMR(1, 2)}`, `11_${rMR(1, 4)}_${rMR(1, 4)}`, `12_${rMR(1, 2)}_${rMR(1, 4)}`]);
     },
     'iosApp': function iosApp() {
-      return rML(['safari', 'qb', 'wechat']);
+      return rML(customDefault['iosApp']);
     },
     'androidVer': function androidVer() {
       return `${rMR(7, 9)}.${rMR(0, 5)}${rMPR(`80^.${rMR(0, 5)}`)}`;
     },
-    'androidDevice': function androidDevice() {
-      return rML(['huawei', 'mi', 'vivo', 'oppo', 'samsung']);
+    'androidBrand': function androidBrand() {
+      return rML(customDefault['androidBrand']);
     },
     'androidApp': function androidApp() {
-      return rML(['wechat', 'uc', 'baidu', 'qb', '']);
+      return rML(customDefault['androidApp']);
     },
     'engineVer': function engineVer() {
       return `${rMR(412, 605)}.${rMR(1, 10)}${rMPR(`80^.${rMR(1, 60)}`)}`;
@@ -326,7 +337,7 @@
     'ios-wechat': function iosWechat() {
       return `MicroMessenger/${rMR(5, 7)}.${rMR(0, 3)}.${rMR(1, 5)}(0x${rMR(15000000, 23000000)}) NetType/${rD.networwVer()} Language/zh_CN`;
     },
-    'android': function android() {
+    'android-native': function androidNative() {
       return `Mobile Safari/${rD.safariVer()}`;
     },
     'android-wechat': function androidWechat() {
@@ -478,7 +489,7 @@
     var device = rD.device();
     var os = rD[`${device}Os`]();
     var app = rD[`${os}App`]();
-    var brand = `${device}${os}` === 'mobileandroid' ? rD.androidDevice() : ''; // 只有安卓机器分机型
+    var brand = `${device}${os}` === 'mobileandroid' ? rD.androidBrand() : ''; // 只有安卓机器分机型
 
     return {
       device,
@@ -492,17 +503,23 @@
    * @param {String | Number} ua的数量
    * @param {Object} ua的类型
    * @return {String | Array} 浏览器ua
+   * customMap 为可自定义的ua参数
    */
 
+
+  var customMap = ['device', 'pcOs', 'mobileOs', 'windowsApp', 'macosApp', 'iosApp', 'androidBrand', 'androidApp'];
 
   var generateUa = function generateUa() {
     var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
     var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     num = parseInt(num);
     if (isNaN(num) || num < 1) num = 1;
-    Object.keys(customDefault).forEach(function (key) {
+
+    var config = _objectSpread({}, customDefault, opt);
+
+    customMap.forEach(function (key) {
       rD[key] = function () {
-        return rML(opt[key] || customDefault[key]);
+        return rML(config[key]);
       };
     });
     var ret = [];
